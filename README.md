@@ -23,5 +23,6 @@ For a complete mathematical description of WISDoM and the Wishart Distribution s
 The main tool used to develope a parallel and optimized pipeline is the Snakemake Workflow Management System, a Python-based interface created to build reproducible and scalable data analyses and machine-learning routines.
 To briefly some up the the advantages of using such tools and structures, the Snakemake Workflow can be described as rules that denote how to create output files from input files. The workflow is implied by dependencies between the rules that arise from one rule needing an output file of another as an input file.
 
-![Pipeline Rules Visual Summary](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/General-Pipeline.png)
+General Pipeline Summary Visualization:
 
+<img src="https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/General-Pipeline.png" alt="General-Pipeline" width="500px"/>
