@@ -26,3 +26,9 @@ To briefly some up the the advantages of using such tools and structures, the Sn
 General Pipeline Summary Visualization:
 
 <img src="https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/General-Pipeline.png" alt="General-Pipeline" width="500px"/>
+
+Sample Pipeline Rules Execution DAG:
+
+<img src="https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Sample-pipeline-DAG.png" alt="General-Pipeline" width="750px"/>
+
+
