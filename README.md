@@ -41,6 +41,6 @@ Module [head_wrap.py](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM
 **Requisites**
 
 In order to successfully use the WISDoM pipeline, the [Snakemake Environment](https://snakemake.readthedocs.io/en/stable/) must be correctly set up.
-Furthermore, the modules relies on scipy.stats for Wishart sampling generation and scikit.learn for training and classification; Pandas is also required for Dataframe creation and handling.
+Furthermore, the modules relies on **scipy.stats** for Wishart sampling generation and **scikit.learn** for training and classification; **Pandas** is also required for Dataframe creation and handling.
 
 
