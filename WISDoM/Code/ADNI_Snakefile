@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Oct 31 16:25:46 2017
+
+@author: carlomengucci
+"""
+
+import numpy as np
+
+import scipy.stats as st
+import pandas as pd
+
+import matplotlib
+matplotlib.use('Agg')
+import pylab as plt
+
+from sklearn.model_selection import KFold
+
+import sys
+sys.path.insert(0, '/Users/carlomengucci/Desktop/WISDoM/Code/Modules')
+
+import gen_fs as gfs
+import head_wrap as hw
+
+import os
+from os.path import join as pj
+
+## Path Variables ##
+
+data_dir = "/home/STUDENTI/carlo.mengucci/Data/"
+results_dir='/home/STUDENTI/carlo.mengucci/ADNI-Workspace/Results/'
+
+## Filename Generator Function, ensures stability over wildcards calls in
+## splits generation
+
+def split_names_q(wildcards):
+
+    s =pj(results_dir, "map_{i}_of_{total}_{type1}_VS_{type2}.h5")
+    l = [s.format(i=i, **wildcards) for i in range(int(wildcards.total))]
+
+    return (l)
+
+def split_names_t(wildcards):
+
+    s =pj(results_dir, "test_map_{i}_of_{total}_{type1}_VS_{type2}.h5")
+    l = [s.format(i=i, **wildcards) for i in range(int(wildcards.total))]
+
+    return (l)
+
+## CORE ##
+
+rule all:
+    input:
+        AD_AD_map=pj(results_dir, 'final_10_folds_map_AD_VS_AD.h5'),
+        NC_NC_map=pj(results_dir, 'final_10_folds_map_NC_VS_NC.h5'),
+
+        AD_NC_map=pj(results_dir, 'final_10_folds_map_AD_VS_NC.h5'),
+        NC_AD_map=pj(results_dir, 'final_10_folds_map_NC_VS_AD.h5'),
+        ###
+        AD_AD_t_map=pj(results_dir, 'final_10_folds_test_map_AD_VS_AD.h5'),
+        NC_NC_t_map=pj(results_dir, 'final_10_folds_test_map_NC_VS_NC.h5'),
+
+        AD_NC_t_map=pj(results_dir, 'final_10_folds_test_map_AD_VS_NC.h5'),
+        NC_AD_t_map=pj(results_dir, 'final_10_folds_test_map_NC_VS_AD.h5'),
+
+        #AD_seqs=pj(results_dir, 'AD_seqs.h5'),
+        #NC_seqs=pj(results_dir, 'NC_seqs.h5'),
+
+
+## final t_map merging ##
+
+rule t_join:
+    input:
+        split_names_t,
+    output:
+        f_map=pj(results_dir, 'final_{total}_folds_test_map_{type1}_VS_{type2}.h5')
+    run:
+        f_list=[pd.read_hdf(file, 'table') for file in input]
+        f_map=pd.concat(f_list)
+        f_map.to_hdf(output.f_map,'table')
+
+
+## Final q_map merging ##
+
+rule q_join:
+    input:
+        split_names_q,
+    output:
+        f_map=pj(results_dir, 'final_{total}_folds_map_{type1}_VS_{type2}.h5')
+    run:
+        f_list=[pd.read_hdf(file, 'table') for file in input]
+        f_map=pd.concat(f_list)
+        f_map.to_hdf(output.f_map,'table')
+
+## Patient-component quantile maps creation, first type in filename is the scale
+## generator set, second one refers to type of test set ##
+
+rule map_gen:
+    input:
+        train=pj(results_dir, 'train_{num}_of_{total}_on_{type1}.h5'),
+        test=pj(results_dir, 'test_{num}_of_{total}_on_{type2}.h5'),
+    output:
+        q_map=temp(pj(results_dir, 'map_{num}_of_{total}_{type1}_VS_{type2}.h5')),
+        t_map=temp(pj(results_dir, 'test_map_{num}_of_{total}_{type1}_VS_{type2}.h5')),
+    run:
+        train=pd.read_hdf(input.train, 'table').T
+        test=pd.read_hdf(input.test, 'table').T
+
+        train_tensor=gfs.comp_tensor(train, 549, 0, len (train))
+        train_null=np.mean(train_tensor, axis=0)
+
+
+        test_tensor=gfs.comp_tensor(test, 549, 0, len (test))
+
+        ## Sampling and Map generation ##
+
+        sampling=3000
+        components=549
+
+        dist=st.wishart(df=sampling-1, scale=train_null)
+
+        train_map=[]
+        for i in range (len(train_tensor[:,:,0])):
+            var= gfs.RC_drop_var(train_tensor[i], train_null, df=sampling-1, dist=dist)
+
+            train_map.append(var)
+
+        train_map=np.asarray(train_map)
+
+        test_map=[]
+        for i in range (len(test_tensor[:,:,0])):
+            var= gfs.RC_drop_var(test_tensor[i], train_null, df=sampling-1, dist=dist)
+
+            test_map.append(var)
+
+        test_map=np.asarray(test_map)
+        t_map=pd.DataFrame(test_map)
+        t_map.to_hdf(output.t_map, 'table')
+
+        ## Quantiles map creation, column-wise selection is needed to analyze
+        ## component distribution over patients
+
+        q_map= gfs.quantiles_ex(train_map, test_map)
+        q_map=pd.DataFrame(q_map)
+        q_map.to_hdf(output.q_map, 'table')
+
+
+## Train & Test creation and Storing, everything is stored as unravaled sequence ##
+
+rule tt_gen:
+    input:
+        dataset=pj(results_dir, '{type}_seqs.h5'),
+        splits=pj(results_dir, 'split_{total}_on_{type}.tsv'),
+    output:
+        train=temp(pj(results_dir, 'train_{num}_of_{total}_on_{type}.h5')),
+        test=temp(pj(results_dir, 'test_{num}_of_{total}_on_{type}.h5')),
+    run:
+        data=pd.read_hdf(input.dataset, 'table')
+
+        Nidx = int(wildcards.num)
+        with open(input.splits) as infile:
+            indexes = [line.split() for line in infile]
+            train_index, test_index = indexes[Nidx]
+        train_index = data.index[list(map(int, train_index.split(',')))]
+        test_index = data.index[list(map(int, test_index.split(',')))]
+        data.iloc[train_index, :].to_hdf(output.train, 'table')
+        data.iloc[test_index, :].to_hdf(output.test, 'table')
+
+
+
+
+## K-fold splitting generation for cross dataset component quantiles analisys ##
+
+rule split_gen:
+    input:
+        dataset=pj(results_dir, '{type}_seqs.h5'),
+    output:
+        splits=temp(pj(results_dir, 'split_{total}_on_{type}.tsv')),
+    run:
+        data=pd.read_hdf(input.dataset, 'table')
+        Ntot = int(wildcards.total)
+        seed=0
+        kf = KFold(n_splits=Ntot, random_state=seed)
+
+        with open(output.splits, 'w') as outfile:
+            for train_index, test_index in kf.split(data.values):
+                train_index = ','.join(map(str, train_index))
+                test_index = ','.join(map(str, test_index))
+                print(train_index, test_index, file=outfile)
+
+
+## Tensor storing in .h5 form as unraveled sequences ##
+
+rule seqs_store:
+    input:
+        type_cases=pj(results_dir, '{type}_cases.h5'),
+
+    output:
+        type_seqs=pj(results_dir, '{type}_seqs.h5'),
+    run:
+
+        type_cases=pd.read_hdf(input.type_cases, 'table')
+
+
+        type_selector=hw.sub_data_sel(type_cases,100)
+
+        type_tensor=gfs.comp_tensor(type_cases, 549, type_selector,202)
+
+
+        type_seq=[]
+
+        for i in range(len (type_tensor[:,:,0])):
+            seq= gfs.sequencer(type_tensor[i], 1, 549)
+            type_seq.append(seq)
+
+        type_seq=np.asarray(type_seq)
+
+        type_d=pd.DataFrame(type_seq)
+        type_d.to_hdf(output.type_seqs, 'table')
+
+
+## Casistic Wrapping and Data Loading ##
+
+rule case_wrap:
+    input:
+        subj_info = pj(data_dir,"subjects_info.csv"),
+        data=pj(data_dir, 'adjacencies.h5'),
+    output:
+        type_cases= temp(pj(results_dir, '{type}_cases.h5')),
+
+    run:
+        subj_info=pd.read_csv(input.subj_info)
+        data = pd.read_hdf(input.data, 'table')
+        data = data.dropna(axis='columns')
+
+        type_subj=hw.wrap_selection(subj_info, wildcards.type)
+        type_idx=type_subj['index']
+
+
+        type_cases=data[type_idx]
+
+        type_cases.to_hdf(output.type_cases, 'table')
