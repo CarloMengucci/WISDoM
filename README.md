@@ -1,5 +1,5 @@
 # WISDoM
-Wishart Distributed Matrices Multiple Order Classification Method, Pipeline and Utilities
+*Wishart Distributed Matrices Multiple Order Classification Method, Pipeline and Utilities*
 
 
 In this work we introduce the Wishart Distributed Matrices Multiple Order Classification (WISDoM) method.
