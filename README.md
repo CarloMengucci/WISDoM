@@ -31,5 +31,5 @@ To briefly some up the the advantages of using such tools and structures, the Sn
 
 <img src="https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Sample-pipeline-DAG.png" alt="General-Pipeline" width="750px"/>
 
-
+To see the complete pipeline for the ADNI Database analysis developed with Snakemake please look at: 
 
