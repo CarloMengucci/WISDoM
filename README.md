@@ -31,5 +31,16 @@ To briefly some up the the advantages of using such tools and structures, the Sn
 
 <img src="https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Sample-pipeline-DAG.png" alt="General-Pipeline" width="750px"/>
 
-To see the complete pipeline for the ADNI Database analysis developed with Snakemake please look at: 
+To see the complete pipeline for the ADNI Database analysis developed with Snakemake please look at: [ADNI_Snakefile](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Code/ADNI_Snakefile)
+
+**Data Formats**
+
+The WISDoM pipeline is compatible with .hdf tabulated data. Each row must be an entry of the database and each column an element of the upper (or lower) triangle of the symmetric positive-definite matrix associated to said entry, excluding the diagonal elements.
+Module [head_wrap.py](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Code/Modules/head_wrap.py) contains useful functions and wrappers to associate labels to entries from existing .csv files, while module [gen_fs.py](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Code/Modules/gen_fs.py) contains functions to reconstruct the NumPy tensor from a Pandas Dataframe obtained by reading the .hdf file.
+
+**Requisites**
+
+In order to successfully use the WISDoM pipeline, the [Snakemake Environment](https://snakemake.readthedocs.io/en/stable/) must be correctly set up.
+Furthermore, the modules relies on scipy.stats for Wishart sampling generation and scikit.learn for training and classification; Pandas is also required for Dataframe creation and handling.
+
 
