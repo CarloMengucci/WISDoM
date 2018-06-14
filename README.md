@@ -33,6 +33,33 @@ To briefly sum up the the advantages of using such tools and structures, the Sna
 
 To see the complete pipeline for the ADNI Database analysis developed with Snakemake please look at: [ADNI_Snakefile](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Code/ADNI_Snakefile)
 
+**Running the Snakefile**
+
+Snakemake offers simple multi-core running options. Please note that some of the *scipy.stats* functions used tend to exploit all the available resources, in conflict with the Snakemake attempt to manage threads.
+To avoid this, just force single-threading by setting environment with the following line:
+
+```
+export OMP_NUM_THREADS=1
+```
+
+After moving to the folder containing the Snakefile (i.e. [ADNI_Snakefile](https://github.com/CarloMengucci/WISDoM/blob/master/WISDoM/Code/ADNI_Snakefile)), a dry run to check if the workflow is properly defined can be performed by using:
+
+```
+snakemake -n
+```
+
+To launch the pipeline over the desired number of cores use:
+
+```
+snakemake -j n_cores
+```
+
+Snakemake will then use up to n cores and try to solve a binary knapsack problem to optimize the scheduling of jobs.
+To visualize the pipeline DAG (Direct Acyclic Graph) and save it in the desired format through the graphviz dot tool use:
+
+```
+snakemake --dag | dot -Tpdf > dag.pdf
+```
 **Data Formats**
 
 The WISDoM pipeline is compatible with .hdf tabulated data. Each row must be an entry of the database and each column an element of the upper (or lower) triangle of the symmetric positive-definite matrix associated to said entry, excluding the diagonal elements.
