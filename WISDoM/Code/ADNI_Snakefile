@@ -18,7 +18,7 @@ import pylab as plt
 from sklearn.model_selection import KFold
 
 import sys
-sys.path.insert(0, '/Users/carlomengucci/Desktop/WISDoM/Code/Modules')
+sys.path.insert(0, '/path/to/Modules')
 
 import gen_fs as gfs
 import head_wrap as hw
@@ -28,8 +28,8 @@ from os.path import join as pj
 
 ## Path Variables ##
 
-data_dir = "/home/STUDENTI/carlo.mengucci/Data/"
-results_dir='/home/STUDENTI/carlo.mengucci/ADNI-Workspace/Results/'
+data_dir = "/path/to/Data/"
+results_dir='/path/to/Results/'
 
 ## Filename Generator Function, ensures stability over wildcards calls in
 ## splits generation
@@ -220,7 +220,7 @@ rule seqs_store:
         type_d.to_hdf(output.type_seqs, 'table')
 
 
-## Casistic Wrapping and Data Loading ##
+## Class Wrapping and Data Loading ##
 
 rule case_wrap:
     input:
