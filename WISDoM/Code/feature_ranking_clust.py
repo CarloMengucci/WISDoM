@@ -14,7 +14,7 @@ import os
 from os.path import join as pj
 
 import sys
-sys.path.insert(0, '/Users/carlomengucci/Desktop/WISDoM/Code/Modules')
+sys.path.insert(0, '/path/to/Modules')
 
 import gen_fs as gfs
 import head_wrap as hw
@@ -25,8 +25,8 @@ import sklearn
 
 ## Path Variables ##
 
-data_dir = "/Users/carlomengucci/Desktop/ADNI-Workspace/Data/"
-results_dir='/Users/carlomengucci/Desktop/ADNI-Workspace/Results/'
+data_dir = "/path/to/Data/"
+results_dir='/path/to/Results/'
 
 
 # %%
