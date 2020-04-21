@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 import sys
-sys.path.insert(0, '/Users/carlomengucci/Desktop/WISDoM/Code/Modules')
+sys.path.insert(0, '/path/to/Modules')
 
 import gen_fs as gfs
 
