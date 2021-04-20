@@ -1,6 +1,7 @@
 # WISDoM
 *Wishart Distributed Matrices Multiple Order Classification Method, Pipeline and Utilities*
 
+**Publication**: https://doi.org/10.3389/fninf.2020.611762
 
 In this work we introduce the Wishart Distributed Matrices Multiple Order Classification (WISDoM) method.
 The WISDoM Classification method consists of a pipeline for single feature analysis, supervised learning, cross validation and classification for any problems whose elements can be tied to a symmetric positive-definite matrix representation.
